@@ -3,7 +3,7 @@ import pandas as pd
 from anndata import AnnData
 
 def cluster_fractions(
-    data_obj: AnnData, numerator: str, denominator: str
+    data: AnnData, numerator: str, denominator: str
 ) -> pd.DataFrame:
     """Calculate the relative fraction of a population within a given set of groups.
     More clearly, calculate how many cells of, say, a treatment group make up a 
@@ -23,9 +23,13 @@ def cluster_fractions(
     :class:`~pandas.DataFrame`
     """
 
-    if isinstance(data_obj, "AnnData"):
-        df = data_obj.obs
+    if isinstance(data, AnnData):
+        df = data.obs
+    elif isinstance(data, pd.DataFrame):
+        df = data
     df["index"] = df.index
+    assert numerator in df.keys(), f"{numerator} is not a column"
+    assert denominator in df.keys(), f"{denominator} is not a column"
     beta = df.groupby([numerator, denominator]).count()
     beta = beta.loc[:, ["index"]].rename(columns={"index": "numerator_count"})
     gamma = df.groupby(denominator).count()
