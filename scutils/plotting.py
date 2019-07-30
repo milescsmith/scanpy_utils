@@ -45,7 +45,7 @@ def dimplot(adata, reduction="umap", **kwargs) -> Union[Axes, List[Axes], None]:
 
 
 def velocity_compare(
-    adatas: Union(AnnData, List[AnnData]),
+    adatas,
     feature_list: List[str],
     xkey: str = "Ms",
     ykey: str = "Mu",
