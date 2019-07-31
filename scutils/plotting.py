@@ -97,7 +97,8 @@ def plot_grouped_velo_grid(adata: AnnData,
                            arrow_size: Optional[int] = None,
                            colormap: str = None,
                            components: Optional[str] = None,
-                           size: Optional[int] = None,) -> plt.figure:
+                           size: Optional[int] = None,
+                           show: bool = True) -> plt.figure:
 
     basis = default_basis(adata) if basis is None else basis
     colormap = "viridis" if colormap is None else colormap
@@ -158,7 +159,8 @@ def plot_grouped_velo_grid(adata: AnnData,
         axs[index].set_title(f"{item}: {color}")
         if not gridlines:
             axs[index].grid()
-
+    if show:
+        fig.show()
     return fig
 
 
@@ -174,7 +176,8 @@ def plot_dictionary_velo_grid(adata_dict: Dict[str, AnnData],
                               colormap: Union[str, List[str], Dict[str, str]] = None,
                               arrow_size: Optional[int] = None,
                               components: Optional[str] = None,
-                              size: Optional[int] = None,) -> plt.figure:
+                              size: Optional[int] = None,
+                              show: bool = True) -> plt.figure:
 
     if colormap is None:
         colormap = {_:"viridis" for _ in adata_dict}
@@ -238,5 +241,6 @@ def plot_dictionary_velo_grid(adata_dict: Dict[str, AnnData],
         ax.set_title(f"{item}: {color}")
         if not gridlines:
             ax.grid()
-
+    if show:
+        fig.show()
     return fig
