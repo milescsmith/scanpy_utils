@@ -47,7 +47,7 @@ setup(
     # package_data={"merrycrispr": ["data/*.*"]},
     dependency_links=[
         "https://github.com/dpeerlab/Palantir/tarball/master#egg=palantir-v0.2.1",
-        "https://github.com/theislab/scvelo/tarball/master#egg=scvelo-v0.1.18",
+        "https://github.com/milescsmith/scvelo/tarball/master#egg=scvelo",
         "https://github.com/jacoblevine/PhenoGraph/master#egg-phenograph",
     ],
 )
