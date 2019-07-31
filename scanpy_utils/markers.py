@@ -59,4 +59,3 @@ def top_markers_for_group(
     marker_genes_df = marker_genes_df[marker_genes_df["cluster"] == str(group)]
     top_markers = marker_genes_df.nlargest(topn, columns=selection_key)
     return top_markers
-

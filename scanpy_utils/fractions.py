@@ -2,9 +2,8 @@ from typing import Optional
 import pandas as pd
 from anndata import AnnData
 
-def cluster_fractions(
-    data: AnnData, numerator: str, denominator: str
-) -> pd.DataFrame:
+
+def cluster_fractions(data: AnnData, numerator: str, denominator: str) -> pd.DataFrame:
     """Calculate the relative fraction of a population within a given set of groups.
     More clearly, calculate how many cells of, say, a treatment group make up a 
     cluster.
