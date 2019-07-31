@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 import versioneer
 
 try:
-    from merrycrispr import __author__, __email__
+    from scanpy_utils import __author__, __email__
 except ImportError:  # Deps not yet installed
     __author__ = __email__ = ''
 
@@ -43,7 +43,7 @@ setup(
     include_package_data=True,
 
     keywords="scrna",
-    package_dir={"scutils": "scutils"},
+    package_dir={"scanpy_utils": "scanpy_utils"},
     # package_data={"merrycrispr": ["data/*.*"]},
     dependency_links=[
         "https://github.com/dpeerlab/Palantir/tarball/master#egg=palantir-v0.2.1",
