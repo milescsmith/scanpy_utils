@@ -169,7 +169,7 @@ def plot_grouped_velo_grid(
         if not gridlines:
             axs[index].grid()
     if show:
-        fig.show()
+        plt.show()
     return fig
 
 
@@ -265,5 +265,5 @@ def plot_dictionary_velo_grid(
         if not gridlines:
             ax.grid()
     if show:
-        fig.show()
+        plt.show()
     return fig
