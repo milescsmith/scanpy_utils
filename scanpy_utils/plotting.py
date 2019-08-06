@@ -178,7 +178,7 @@ def plot_grouped_velo_grid(
 def plot_dictionary_velo_grid(
     adata_dict: Dict[str, AnnData],
     basis: Optional[str] = None,
-    features: Union[str, List[str]] = "YES1",
+    color: Optional[str] = None,
     layer: str = "velocity",
     vkey: str = "velocity",
     arrow_length: float = None,
@@ -216,61 +216,61 @@ def plot_dictionary_velo_grid(
         "linewidth": 0.2,
     }
 
-    if isinstance(features, str):
-        features = list(features)
-
-    for feature in features:
-        fig = plt.figure(figsize=figsize)
-        for index, item in enumerate(adata_dict):
-            basis = default_basis(adata_dict[item]) if basis is None else basis
-            quiver_data = {
-                k: v
-                for k, v in zip(
-                    ["XY_grid", "V_grid"],
-                    compute_velocity_on_grid(
-                        X_emb=np.array(
-                            adata_dict[item].obsm[f"X_{basis}"][
-                                :, get_components(components, basis)
-                            ]
-                        ),
-                        V_emb=np.array(
-                            adata_dict[item].obsm[f"{vkey}_{basis}"][
-                                :, get_components(components, basis)
-                            ]
-                        ),
-                        autoscale=True,
+    fig = plt.figure(figsize=figsize)
+    for index, item in enumerate(adata_dict):
+        basis = default_basis(adata_dict[item]) if basis is None else basis
+        quiver_data = {
+            k: v
+            for k, v in zip(
+                ["XY_grid", "V_grid"],
+                compute_velocity_on_grid(
+                    X_emb=np.array(
+                        adata_dict[item].obsm[f"X_{basis}"][
+                            :, get_components(components, basis)
+                        ]
                     ),
-                )
-            }
-
-            size = 4 * default_size(adata_dict[item]) if size is None else size
-
-            embed_points = pd.DataFrame(adata_dict[item].obsm[f"X_{basis}"]).rename(
-                columns={0: f"{basis}_1", 1: f"{basis}_2"}
+                    V_emb=np.array(
+                        adata_dict[item].obsm[f"{vkey}_{basis}"][
+                            :, get_components(components, basis)
+                        ]
+                    ),
+                    autoscale=True,
+                ),
             )
-            exprs = interpret_colorkey(adata_dict[item], feature, layer, 0.95)
+        }
 
-            ax = fig.add_subplot(1, len(adata_dict), index + 1)
-            ax.scatter(
-                x=embed_points[f"{basis}_1"],
-                y=embed_points[f"{basis}_2"],
-                c=exprs,
-                s=1,
-                cmap=colormap[item],
+        size = 4 * default_size(adata_dict[item]) if size is None else size
+
+        embed_points = pd.DataFrame(adata_dict[item].obsm[f"X_{basis}"]).rename(
+            columns={0: f"{basis}_1", 1: f"{basis}_2"}
+        )
+        
+        if color is not None:
+            exprs = interpret_colorkey(adata_dict[item], color, layer, 0.95)
+        else
+            exprs = np.zeros(shape=(1,adata.shape[1]))
+
+        ax = fig.add_subplot(1, len(adata_dict), index + 1)
+        ax.scatter(
+            x=embed_points[f"{basis}_1"],
+            y=embed_points[f"{basis}_2"],
+            c=exprs,
+            s=1,
+            cmap=colormap[item],
+        )
+
+        if show_quiver:
+            ax.quiver(
+                quiver_data["XY_grid"][:, 0],
+                quiver_data["XY_grid"][:, 1],
+                quiver_data["V_grid"][:, 0],
+                quiver_data["V_grid"][:, 1],
+                zorder=3,
+                **quiver_kwargs,
             )
-
-            if show_quiver:
-                ax.quiver(
-                    quiver_data["XY_grid"][:, 0],
-                    quiver_data["XY_grid"][:, 1],
-                    quiver_data["V_grid"][:, 0],
-                    quiver_data["V_grid"][:, 1],
-                    zorder=3,
-                    **quiver_kwargs,
-                )
-            ax.set_title(f"{item}: {feature}")
-            if not gridlines:
-                ax.grid()
-        if show:
-            plt.show()
+        ax.set_title(f"{item}: {color}")
+        if not gridlines:
+            ax.grid()
+    if show:
+        plt.show()
     return fig
