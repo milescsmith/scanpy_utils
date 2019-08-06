@@ -247,7 +247,7 @@ def plot_dictionary_velo_grid(
         
         if color is not None:
             exprs = interpret_colorkey(adata_dict[item], color, layer, 0.95)
-        else
+        else:
             exprs = np.zeros(shape=(1,adata.shape[1]))
 
         ax = fig.add_subplot(1, len(adata_dict), index + 1)
