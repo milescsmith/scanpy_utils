@@ -268,7 +268,7 @@ def plot_dictionary_velo_grid(
                     zorder=3,
                     **quiver_kwargs,
                 )
-            ax.set_title(f"{item}: {color}")
+            ax.set_title(f"{item}: {feature}")
             if not gridlines:
                 ax.grid()
         if show:
