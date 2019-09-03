@@ -1,5 +1,5 @@
 anndata @ git+https://github.com/milescsmith/anndata
 scanpy @ git+https://github.com/milescsmith/scanpy
 scvelo @ git+https://github.com/milescsmith/scvelo
-numba==0.44.1
-cmake==3.14.4
+numba>=0.45.1
+cmake>=3.14.4
