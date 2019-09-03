@@ -19,7 +19,7 @@ def get_marker_genes(
     marker_genes_df.columns = [
         _
         for _ in chain.from_iterable(
-            zip(["variable"] * 5, list(adata.uns[rank_key].keys())[1:])
+            zip(["variable"] * 5, [_ for _ in bcells.uns[rank_key] if _ != "params"])
         )
     ]
     marker_genes_df = marker_genes_df.loc[

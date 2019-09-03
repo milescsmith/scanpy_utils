@@ -251,11 +251,11 @@ def plot_dictionary_velo_grid(
         embed_points = pd.DataFrame(adata_dict[item].obsm[f"X_{basis}"]).rename(
             columns={0: f"{basis}_1", 1: f"{basis}_2"}
         )
-        
+
         if color is not None:
             exprs = interpret_colorkey(adata_dict[item], color, layer, 0.95)
         else:
-            exprs = np.zeros(shape=(1,adata.shape[1]))
+            exprs = np.zeros(shape=(1, adata.shape[1]))
 
         ax = fig.add_subplot(1, len(adata_dict), index + 1)
         ax.scatter(
@@ -283,34 +283,36 @@ def plot_dictionary_velo_grid(
     return fig
 
 
-def dotplot(adata,
-            var_names,
-            groupby=None,
-            use_raw=None,
-            log=False,
-            num_categories=7,
-            expression_cutoff=0.,
-            mean_only_expressed=False,
-            color_map='Reds',
-            dot_max=None,
-            dot_min=None,
-            show_grid=False,
-            grid_color='#CCCCCC',
-            grid_linewidth=1,
-            grid_linestyle="-",
-            grid_alpha=0.25,
-            figsize=None,
-            dendrogram=False,
-            gene_symbols=None,
-            var_group_positions=None,
-            standard_scale=None,
-            smallest_dot=0.,
-            var_group_labels=None,
-            var_group_rotation=None,
-            layer=None,
-            show=None,
-            save=None,
-            **kwds):
+def dotplot(
+    adata,
+    var_names,
+    groupby=None,
+    use_raw=None,
+    log=False,
+    num_categories=7,
+    expression_cutoff=0.0,
+    mean_only_expressed=False,
+    color_map="Reds",
+    dot_max=None,
+    dot_min=None,
+    show_grid=False,
+    grid_color="#CCCCCC",
+    grid_linewidth=1,
+    grid_linestyle="-",
+    grid_alpha=0.25,
+    figsize=None,
+    dendrogram=False,
+    gene_symbols=None,
+    var_group_positions=None,
+    standard_scale=None,
+    smallest_dot=0.0,
+    var_group_labels=None,
+    var_group_rotation=None,
+    layer=None,
+    show=None,
+    save=None,
+    **kwds,
+):
     """\
     Makes a *dot plot* of the expression values of `var_names`.
     For each var_name and each `groupby` category a dot is plotted. Each dot
@@ -364,11 +366,21 @@ def dotplot(adata,
     >>> markers = {{'T-cell': 'CD3D', 'B-cell': 'CD79A', 'myeloid': 'CST3'}}
     >>> sc.pl.dotplot(adata, markers, groupby='bulk_labels', dendrogram=True)
     """
-    if use_raw is None and adata.raw is not None: use_raw = True
-    var_names, var_group_labels, var_group_positions = _check_var_names_type(var_names,
-                                                                             var_group_labels, var_group_positions)
-    categories, obs_tidy = _prepare_dataframe(adata, var_names, groupby, use_raw, log, num_categories,
-                                              layer=layer, gene_symbols=gene_symbols)
+    if use_raw is None and adata.raw is not None:
+        use_raw = True
+    var_names, var_group_labels, var_group_positions = _check_var_names_type(
+        var_names, var_group_labels, var_group_positions
+    )
+    categories, obs_tidy = _prepare_dataframe(
+        adata,
+        var_names,
+        groupby,
+        use_raw,
+        log,
+        num_categories,
+        layer=layer,
+        gene_symbols=gene_symbols,
+    )
 
     # for if category defined by groupby (if any) compute for each var_name
     # 1. the fraction of cells in the category having a value > expression_cutoff
@@ -389,16 +401,16 @@ def dotplot(adata,
     else:
         mean_obs = obs_tidy.groupby(level=0).mean()
 
-    if standard_scale == 'group':
+    if standard_scale == "group":
         mean_obs = mean_obs.sub(mean_obs.min(1), axis=0)
         mean_obs = mean_obs.div(mean_obs.max(1), axis=0).fillna(0)
-    elif standard_scale == 'var':
+    elif standard_scale == "var":
         mean_obs -= mean_obs.min(0)
         mean_obs = (mean_obs / mean_obs.max(0)).fillna(0)
     elif standard_scale is None:
         pass
     else:
-        logg.warning('Unknown type for standard_scale, ignored')
+        logg.warning("Unknown type for standard_scale, ignored")
 
     dendro_width = 0.8 if dendrogram else 0
     colorbar_width = 0.2
@@ -410,10 +422,18 @@ def dotplot(adata,
         # a larger height
         height = max([1.5, height])
         heatmap_width = len(var_names) * 0.35
-        width = heatmap_width + colorbar_width + size_legend_width + dendro_width + colorbar_width_spacer
+        width = (
+            heatmap_width
+            + colorbar_width
+            + size_legend_width
+            + dendro_width
+            + colorbar_width_spacer
+        )
     else:
         width, height = figsize
-        heatmap_width = width - (colorbar_width + size_legend_width + dendro_width + colorbar_width_spacer)
+        heatmap_width = width - (
+            colorbar_width + size_legend_width + dendro_width + colorbar_width_spacer
+        )
 
     # colorbar ax width should not change with differences in the width of the image
     # otherwise can become too small
@@ -435,15 +455,27 @@ def dotplot(adata,
     #             from the color bar to be hidden beneath the size lengend axis
     #   fifth ax is to plot the size legend
     fig = plt.figure(figsize=(width, height))
-    axs = gridspec.GridSpec(nrows=2, ncols=5, wspace=0.02, hspace=0.04,
-                            width_ratios=[heatmap_width, dendro_width, colorbar_width, colorbar_width_spacer, size_legend_width],
-                            height_ratios=height_ratios)
+    axs = gridspec.GridSpec(
+        nrows=2,
+        ncols=5,
+        wspace=0.02,
+        hspace=0.04,
+        width_ratios=[
+            heatmap_width,
+            dendro_width,
+            colorbar_width,
+            colorbar_width_spacer,
+            size_legend_width,
+        ],
+        height_ratios=height_ratios,
+    )
     if len(categories) < 4:
         # when few categories are shown, the colorbar and size legend
         # need to be larger than the main plot, otherwise they would look
         # compressed. For this, the dotplot ax is split into two:
-        axs2 = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=axs[1, 0],
-                                                height_ratios=[len(categories) * 0.3, 1])
+        axs2 = gridspec.GridSpecFromSubplotSpec(
+            2, 1, subplot_spec=axs[1, 0], height_ratios=[len(categories) * 0.3, 1]
+        )
         dot_ax = fig.add_subplot(axs2[0])
     else:
         dot_ax = fig.add_subplot(axs[1, 0])
@@ -455,28 +487,34 @@ def dotplot(adata,
         dendrogram = False
 
     if dendrogram:
-        dendro_data = _reorder_categories_after_dendrogram(adata, groupby, dendrogram,
-                                                           var_names=var_names,
-                                                           var_group_labels=var_group_labels,
-                                                           var_group_positions=var_group_positions)
+        dendro_data = _reorder_categories_after_dendrogram(
+            adata,
+            groupby,
+            dendrogram,
+            var_names=var_names,
+            var_group_labels=var_group_labels,
+            var_group_positions=var_group_positions,
+        )
 
-        var_group_labels = dendro_data['var_group_labels']
-        var_group_positions = dendro_data['var_group_positions']
+        var_group_labels = dendro_data["var_group_labels"]
+        var_group_positions = dendro_data["var_group_positions"]
 
         # reorder matrix
-        if dendro_data['var_names_idx_ordered'] is not None:
+        if dendro_data["var_names_idx_ordered"] is not None:
             # reorder columns (usually genes) if needed. This only happens when
             # var_group_positions and var_group_labels is set
-            mean_obs = mean_obs.iloc[:,dendro_data['var_names_idx_ordered']]
-            fraction_obs = fraction_obs.iloc[:, dendro_data['var_names_idx_ordered']]
+            mean_obs = mean_obs.iloc[:, dendro_data["var_names_idx_ordered"]]
+            fraction_obs = fraction_obs.iloc[:, dendro_data["var_names_idx_ordered"]]
 
         # reorder rows (categories) to match the dendrogram order
-        mean_obs = mean_obs.iloc[dendro_data['categories_idx_ordered'], :]
-        fraction_obs = fraction_obs.iloc[dendro_data['categories_idx_ordered'], :]
+        mean_obs = mean_obs.iloc[dendro_data["categories_idx_ordered"], :]
+        fraction_obs = fraction_obs.iloc[dendro_data["categories_idx_ordered"], :]
 
         y_ticks = range(mean_obs.shape[0])
         dendro_ax = fig.add_subplot(axs[1, 1], sharey=dot_ax)
-        _plot_dendrogram(dendro_ax, adata, groupby, dendrogram_key=dendrogram, ticks=y_ticks)
+        _plot_dendrogram(
+            dendro_ax, adata, groupby, dendrogram_key=dendrogram, ticks=y_ticks
+        )
 
     # to keep the size_legen of about the same height, irrespective
     # of the number of categories, the fourth ax is subdivided into two parts
@@ -484,9 +522,16 @@ def dotplot(adata,
     # wspace is proportional to the width but a constant value is
     # needed such that the spacing is the same for thinner or wider images.
     wspace = 10.5 / width
-    axs3 = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=axs[1, 4], wspace=wspace,
-                                            height_ratios=[size_legend_height / height,
-                                                           (height - size_legend_height) / height])
+    axs3 = gridspec.GridSpecFromSubplotSpec(
+        2,
+        1,
+        subplot_spec=axs[1, 4],
+        wspace=wspace,
+        height_ratios=[
+            size_legend_height / height,
+            (height - size_legend_height) / height,
+        ],
+    )
     # make scatter plot in which
     # x = var_names
     # y = groupby category
@@ -515,15 +560,19 @@ def dotplot(adata,
         frac = np.clip(frac, dot_min, dot_max)
         old_range = dot_max - dot_min
         # re-scale frac between 0 and 1
-        frac = ((frac - dot_min) / old_range)
+        frac = (frac - dot_min) / old_range
 
     size = (frac * 10) ** 2
     size += smallest_dot
     import matplotlib.colors
 
-    normalize = matplotlib.colors.Normalize(vmin=kwds.get('vmin'), vmax=kwds.get('vmax'))
+    normalize = matplotlib.colors.Normalize(
+        vmin=kwds.get("vmin"), vmax=kwds.get("vmax")
+    )
     colors = cmap(normalize(mean_flat))
-    dot_ax.scatter(x, y, color=colors, s=size, cmap=cmap, norm=None, edgecolor='none', **kwds)
+    dot_ax.scatter(
+        x, y, color=colors, s=size, cmap=cmap, norm=None, edgecolor="none", **kwds
+    )
     y_ticks = range(mean_obs.shape[0])
     dot_ax.set_yticks(y_ticks)
     dot_ax.set_yticklabels([mean_obs.index[idx] for idx in y_ticks])
@@ -531,9 +580,17 @@ def dotplot(adata,
     x_ticks = range(mean_obs.shape[1])
     dot_ax.set_xticks(x_ticks)
     dot_ax.set_xticklabels([mean_obs.columns[idx] for idx in x_ticks], rotation=90)
-    dot_ax.tick_params(axis='both', labelsize='small')
+    dot_ax.tick_params(axis="both", labelsize="small")
     if show_grid:
-        dot_ax.grid(show_grid, which="both", axis="both", color=grid_color, linestyle=grid_linestyle, linewidth=grid_linewidth, alpha=grid_alpha)
+        dot_ax.grid(
+            show_grid,
+            which="both",
+            axis="both",
+            color=grid_color,
+            linestyle=grid_linestyle,
+            linewidth=grid_linewidth,
+            alpha=grid_alpha,
+        )
     else:
         dot_ax.grid(False)
     dot_ax.set_xlim(-0.5, len(var_names) + 0.5)
@@ -543,19 +600,23 @@ def dotplot(adata,
     # invert the order of the y-axis, such that the first group is on
     # top
     ymin, ymax = dot_ax.get_ylim()
-    dot_ax.set_ylim(ymax+0.5, ymin - 0.5)
+    dot_ax.set_ylim(ymax + 0.5, ymin - 0.5)
 
     dot_ax.set_xlim(-1, len(var_names))
 
     # plot group legends on top of dot_ax (if given)
     if var_group_positions is not None and len(var_group_positions) > 0:
         gene_groups_ax = fig.add_subplot(axs[0, 0], sharex=dot_ax)
-        _plot_gene_groups_brackets(gene_groups_ax, group_positions=var_group_positions,
-                                   group_labels=var_group_labels,
-                                   rotation=var_group_rotation)
+        _plot_gene_groups_brackets(
+            gene_groups_ax,
+            group_positions=var_group_positions,
+            group_labels=var_group_labels,
+            rotation=var_group_rotation,
+        )
 
     # plot colorbar
     import matplotlib.colorbar
+
     matplotlib.colorbar.ColorbarBase(color_legend, cmap=cmap, norm=normalize)
 
     # for the dot size legend, use step between dot_max and dot_min
@@ -571,12 +632,14 @@ def dotplot(adata,
     # to guarantee that dot_max is in the legend.
     fracs_legends = np.arange(dot_max, dot_min, step * -1)[::-1]
     if dot_min != 0 or dot_max != 1:
-        fracs_values = ((fracs_legends - dot_min) / old_range)
+        fracs_values = (fracs_legends - dot_min) / old_range
     else:
         fracs_values = fracs_legends
     size = (fracs_values * 10) ** 2
     size += smallest_dot
-    color = [cmap(normalize(value)) for value in np.repeat(max(mean_flat) * 0.7, len(size))]
+    color = [
+        cmap(normalize(value)) for value in np.repeat(max(mean_flat) * 0.7, len(size))
+    ]
 
     # plot size bar
     size_legend = fig.add_subplot(axs3[0])
@@ -589,20 +652,20 @@ def dotplot(adata,
     size_legend.set_yticklabels(labels)
     size_legend.set_yticklabels(["{:.0%}".format(x) for x in fracs_legends])
 
-    size_legend.tick_params(axis='y', left=False, labelleft=False, labelright=True)
+    size_legend.tick_params(axis="y", left=False, labelleft=False, labelright=True)
 
     # remove x ticks and labels
-    size_legend.tick_params(axis='x', bottom=False, labelbottom=False)
+    size_legend.tick_params(axis="x", bottom=False, labelbottom=False)
 
     # remove surrounding lines
-    size_legend.spines['right'].set_visible(False)
-    size_legend.spines['top'].set_visible(False)
-    size_legend.spines['left'].set_visible(False)
-    size_legend.spines['bottom'].set_visible(False)
-    #size_legend.grid(False)
+    size_legend.spines["right"].set_visible(False)
+    size_legend.spines["top"].set_visible(False)
+    size_legend.spines["left"].set_visible(False)
+    size_legend.spines["bottom"].set_visible(False)
+    # size_legend.grid(False)
 
     ymin, ymax = size_legend.get_ylim()
-    size_legend.set_ylim(ymin, ymax+0.5)
+    size_legend.set_ylim(ymin, ymax + 0.5)
 
-    savefig_or_show('dotplot', show=show, save=save)
+    savefig_or_show("dotplot", show=show, save=save)
     return axs
