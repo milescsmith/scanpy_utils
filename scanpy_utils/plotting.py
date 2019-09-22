@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 
 from anndata import AnnData
 
-from scanpy.plotting._tools.scatterplots import plot_scatter, _wraps_plot_scatter
 from scanpy import logging as logg
 from scanpy.plotting._utils import savefig_or_show
 from scanpy.utils import doc_params
@@ -29,23 +28,6 @@ from scvelo.plotting.velocity_embedding_grid import compute_velocity_on_grid
 
 import numpy as np
 import pandas as pd
-
-
-@_wraps_plot_scatter
-def dimplot(adata, reduction="umap", **kwargs) -> Union[Axes, List[Axes], None]:
-    """\
-    A generalized interface for plotting dimensional reductions.
-    Parameters
-    ----------
-    {adata_color_etc}
-    {edges_arrows}
-    {scatter_bulk}
-    {show_save_ax}
-    Returns
-    -------
-    If `show==False` a :class:`~matplotlib.axes.Axes` or a list of it.
-    """
-    return plot_scatter(adata, reduction, **kwargs)
 
 
 def velocity_compare(
