@@ -10,7 +10,6 @@ from anndata import AnnData
 
 from scanpy import logging as logg
 from scanpy.plotting._utils import savefig_or_show
-from scanpy.utils import doc_params
 from scanpy.plotting._docs import doc_show_save_ax, doc_common_plot_args
 from scanpy.plotting._anndata import _check_var_names_type, _prepare_dataframe
 
